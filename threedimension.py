@@ -60,8 +60,7 @@ def project(point, angle_x, angle_y, distance):
     x, y, z = point
     cos_x, sin_x = math.cos(angle_x), math.sin(angle_x)
     cos_y, sin_y = math.cos(angle_y), math.sin(angle_y)
-    
-    # 회전 변환
+
     xz = cos_y * x - sin_y * z
     z = sin_y * x + cos_y * z
     x = xz
@@ -70,8 +69,7 @@ def project(point, angle_x, angle_y, distance):
     z = sin_x * y + cos_x * z
     y = yz
 
-    # 원근 투영
-    factor = distance / (z + 5)  # z 값에 따라 투영 비율 계산
+    factor = distance / (z + 5)
     x2d = int(WIDTH // 2 + x * factor * 100)
     y2d = int(HEIGHT // 2 - y * factor * 100)
 
@@ -79,16 +77,13 @@ def project(point, angle_x, angle_y, distance):
 
 # 카메라와 면의 거리를 계산하는 함수
 def calculate_distance_to_camera(face, vertices, angle_x, angle_y):
-    # 회전된 면의 중심점을 구함
     x = sum(vertices[i][0] for i in face) / len(face)
     y = sum(vertices[i][1] for i in face) / len(face)
     z = sum(vertices[i][2] for i in face) / len(face)
     
-    # 면의 중심점을 회전시킴
     cos_x, sin_x = math.cos(angle_x), math.sin(angle_x)
     cos_y, sin_y = math.cos(angle_y), math.sin(angle_y)
-    
-    # 회전 변환
+
     xz = cos_y * x - sin_y * z
     z = sin_y * x + cos_y * z
     x = xz
@@ -97,7 +92,6 @@ def calculate_distance_to_camera(face, vertices, angle_x, angle_y):
     z = sin_x * y + cos_x * z
     y = yz
 
-    # 카메라는 z=2에서 바라보고 있으므로, 중심점과 카메라(0, 0, 2) 사이의 거리를 계산
     distance = math.sqrt(x**2 + y**2 + (z + 1)**2)
     return distance
 
@@ -195,6 +189,11 @@ while running:
         elif event.type == pygame.MOUSEBUTTONDOWN and state == "menu":
             for button in buttons:
                 button.click(event.pos)
+        elif event.type == pygame.MOUSEWHEEL and state == "view":
+            if event.y > 0:  # 휠 위로 스크롤
+                distance = max(0.5, distance - 0.1)  # 확대 (최소값 0.5)
+            elif event.y < 0:  # 휠 아래로 스크롤
+                distance = min(5, distance + 0.1)  # 축소 (최대값 5)
 
     if state == "menu":
         for button in buttons:
